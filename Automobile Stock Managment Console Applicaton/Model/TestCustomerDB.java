@@ -1,37 +1,40 @@
 package Model;
 
+import java.io.File;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import CustomExceptions.CannotAddDataException;
 import CustomExceptions.CannotRemoveDataException;
 import CustomExceptions.DataNotFoundException;
 import Model.BaseInterface.BaseCustomerDatabase;
 import POJO.Customer;
+import Utilities.JsonDB;
 import Utilities.SortUtil.SortOrder;
 
 public class TestCustomerDB implements BaseCustomerDatabase {
     private List<Customer> customers;
+    private File CustomerDbFile;
+    private JsonDB jsonDB;
     
-    public TestCustomerDB(){
-        customers = new ArrayList<>();
-        
-        customers.add(new Customer("1","name1","pass1",'M',LocalDate.now(),"123456789",true));
-        customers.add(new Customer("2","name2","pass1",'F',LocalDate.now(),"223456789",false));
-        customers.add(new Customer("3","name3","pass1",'M',LocalDate.now(),"323456789",true));
-        customers.add(new Customer("4","name4","pass1",'M',LocalDate.now(),"423456789",true));
-
-
+    public TestCustomerDB(File customerDBFile){
+        jsonDB = JsonDB.getInstance();
+        this.CustomerDbFile = customerDBFile; 
     }
+       
 
     @Override
     public List<Customer> getAllCustomerData() {
+        customers = jsonDB.getAllDataFromFile(CustomerDbFile, Customer.class);
         return customers;
     }
 
     @Override
     public Customer getCustomerData(String customerID) throws DataNotFoundException  {
+        if(customers==null) customers = getAllCustomerData();
+        
         Customer customer = customers.stream()
                                     .filter(customer1->customer1.getCustomerId().equals(customerID))
                                     .findFirst()
@@ -40,14 +43,12 @@ public class TestCustomerDB implements BaseCustomerDatabase {
        return customer;
     }
     @Override
-    public boolean addCustomerData(Customer customer)  {
-        if(customers.add(customer)) return true;
-        return false;
+    public void addCustomerData(Customer customer) throws CannotAddDataException  {
+        customers = jsonDB.writeDataToDataBase(customer,CustomerDbFile,Customer.class);
     }
 
     @Override
     public List<Customer> sortByCustomerName(SortOrder sortOrder, List<Customer> currentCustomers) {
-        
         switch(sortOrder){
             case Ascending:
                             
@@ -69,8 +70,8 @@ public class TestCustomerDB implements BaseCustomerDatabase {
     }
 
     @Override
-    public boolean removeCustomer(String customerID) throws DataNotFoundException,CannotRemoveDataException {
-        if(customers.remove(getCustomerData(customerID))) return true;
-        throw new CannotRemoveDataException("Given customerID cannot be removed\n");
+    public void removeCustomer(String customerID) throws DataNotFoundException,CannotRemoveDataException {
+        if(customers==null) customers = getAllCustomerData();
+        customers = jsonDB.removeDataFromDataBase(getCustomerData(customerID), CustomerDbFile, Customer.class);
     }
 }

@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.List;
 import Controller.BaseInterface.BaseCustomerController;
 import Controller.BaseInterface.BaseDataBaseController;
+import CustomExceptions.CannotAddDataException;
 import CustomExceptions.DataNotFoundException;
 import CustomExceptions.InsufficientStockCountException;
 import POJO.*;
@@ -116,7 +117,7 @@ public class CustomerController implements BaseCustomerController{
     }
 
     @Override
-    public boolean addOrder(List<String> stockIDs, List<Integer> stockCounts,long total) {
+    public void addOrder(List<String> stockIDs, List<Integer> stockCounts,long total) throws CannotAddDataException {
         String[] stockIds = new String[stockIDs.size()];
         int[] counts = new int[stockCounts.size()];
         int size=stockIds.length;
@@ -124,7 +125,7 @@ public class CustomerController implements BaseCustomerController{
             stockIds[i] = stockIDs.get(i);
             counts[i] = stockCounts.get(i);
         }
-       return dataBaseController.addOrderHistoryData(new OrderHistory(idGenerator.generateID(), LocalDate.now(), customer.getCustomerId(), stockIds, counts, total));
+        dataBaseController.addOrderHistoryData(new OrderHistory(idGenerator.generateID(), LocalDate.now(), customer.getCustomerId(), stockIds, counts, total));
         
     }
 

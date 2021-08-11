@@ -19,11 +19,11 @@ public interface BaseAdminController extends StockAndOrderHistoryViewer{
     public List<Customer> filterCustomerByName(String filter);
 
     public void addStock(Stock newStock)throws CannotAddDataException;
-    public void updateStock(String stockID,Stock.UpdateType updateType,String data) throws NumberFormatException, DataNotFoundException;
-    public void BuyStock(String stockID,int count) throws DataNotFoundException, InsufficientStockCountException; 
+    public void updateStock(String stockID,Stock.UpdateType updateType,String data) throws NumberFormatException, DataNotFoundException, CannotAddDataException, CannotRemoveDataException;
+    public void BuyStock(String stockID,int count) throws DataNotFoundException, InsufficientStockCountException, CannotAddDataException, NumberFormatException, CannotRemoveDataException; 
 
-    public boolean removeOrderHistory(String orderHistory) throws DataNotFoundException,CannotRemoveDataException;
-    public boolean removeCustomer(String customerID)throws DataNotFoundException,CannotRemoveDataException;
-    public boolean removeStock(String stouckID) throws DataNotFoundException,CannotRemoveDataException;
+    public void removeOrderHistory(String orderHistory) throws DataNotFoundException,CannotRemoveDataException;
+    public void removeCustomer(String customerID)throws DataNotFoundException,CannotRemoveDataException;
+    public void removeStock(String stouckID) throws DataNotFoundException,CannotRemoveDataException;
    
 }

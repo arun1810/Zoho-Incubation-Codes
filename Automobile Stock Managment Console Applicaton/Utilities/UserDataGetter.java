@@ -26,7 +26,7 @@ public class UserDataGetter {
         try {
             data = inputReader.readLine();
         } catch (IOException e) {
-            e.printStackTrace();
+            printer.printErrorMsg("Unexpected error occured! restart program");
         }
         return data;
     }

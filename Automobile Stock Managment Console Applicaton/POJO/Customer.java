@@ -69,6 +69,11 @@ public class Customer {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        return this.customerID.equals(((Customer)obj).getCustomerId());
+    }
+
+    @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append(String.format("| %-20s |",customerID));

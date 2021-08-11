@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.util.ArrayList;
 import java.util.List;
 import Controller.BaseInterface.BaseCustomerController;
+import CustomExceptions.CannotAddDataException;
 import CustomExceptions.DataNotFoundException;
 import CustomExceptions.InsufficientStockCountException;
 import Utilities.Printer;
@@ -93,7 +94,6 @@ public class CustomerView implements BaseView {
                 
                 } catch (DataNotFoundException | InsufficientStockCountException e) {
                     printer.printErrorMsg(e.getMessage());
-                    e.printStackTrace();
                 }
                 canContinueLoop= userDataGetter.getStringDataFromUser("Continue purchase? y/n").toLowerCase().toCharArray()[0]=='y';
                 }
@@ -102,8 +102,13 @@ public class CustomerView implements BaseView {
                         int billingChoice=0;//default no
                         billingChoice = userDataGetter.getIntegerDataFromUser("Confirm Order? 1-yes 2-No");
                         if(billingChoice==1)  {
-                                customerController.addOrder(stockIDs, stockCounts, total);  
-                                printer.printSuccessMsg("Hurray! Order placed Successfully!!");
+                                try {
+                                    customerController.addOrder(stockIDs, stockCounts, total);
+                                    printer.printSuccessMsg("Hurray! Order placed Successfully!!");
+                                } catch (CannotAddDataException e) {
+                                    printer.printErrorMsg("Some error occured while placing order! please try again");
+                                }  
+                                
                             }
                         else printer.printErrorMsg("Purchase aborted");
                     }

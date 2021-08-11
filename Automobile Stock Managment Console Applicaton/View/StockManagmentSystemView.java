@@ -50,7 +50,6 @@ public class StockManagmentSystemView implements BaseView {
             BaseView customerView = new CustomerView(customerController,inputReader);
             customerView.onStart();
         } catch (DataNotFoundException | InvalidLoginCredentialsException e) {
-            e.printStackTrace();
             printer.printErrorMsg("Invalid login credentials");
         }
     }
@@ -73,7 +72,7 @@ public class StockManagmentSystemView implements BaseView {
         try {
             inputReader.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            printer.printErrorMsg("Unexpected error occured!");
         }
     }
     

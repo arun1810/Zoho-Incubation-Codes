@@ -1,8 +1,13 @@
 package Controller;
 
 
+import java.io.File;
+import java.io.IOException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+
+
 import Controller.BaseInterface.BaseDataBaseController;
 import CustomExceptions.CannotAddDataException;
 import CustomExceptions.CannotRemoveDataException;
@@ -19,8 +24,12 @@ import POJO.Customer;
 import POJO.OrderHistory;
 import POJO.Stock;
 import POJO.Stock.UpdateType;
+import Utilities.JsonDB;
+import Utilities.Printer;
 import Utilities.SortUtil;
 import Utilities.SortUtil.SortOrder;
+
+
 
 public class DataBaseController implements BaseDataBaseController {
     
@@ -29,11 +38,38 @@ public class DataBaseController implements BaseDataBaseController {
     private BaseStockDataBase stockDataBase;
     private final String AdminPassword = "Admin1234";
     private static DataBaseController Instance;
+    private Printer printer;
+    private JsonDB jsonDB;
+    
 
-    private DataBaseController(){
-        this.customerDatabase=new TestCustomerDB();
-        this.orderHistoryDataBase = new TestOrderHistoryDB();
-        this.stockDataBase = new TestStockDB();
+    private DataBaseController(){ //Singleton
+
+        jsonDB = JsonDB.getInstance();
+        printer = Printer.getInstance();
+        initiateDB();
+    }
+    private void initiateDB(){
+        File DB = new File(System.getProperty("user.dir")+"/DataBase");
+        File customerDB=new File(DB,"Customer.json");
+        File stockDB=new File(DB,"StockDB.json");
+        File orderHistory=new File(DB,"OrderHistory.json");
+       
+        
+        if(DB.exists()==false){
+            DB.mkdir();
+            try{
+                customerDB.createNewFile();
+                stockDB.createNewFile();
+                orderHistory.createNewFile();
+            }
+            catch(IOException e){
+                printer.printErrorMsg("Something went Wrong!");
+            }
+        }   
+        customerDatabase=new TestCustomerDB(customerDB);
+        orderHistoryDataBase = new TestOrderHistoryDB(orderHistory);
+        stockDataBase = new TestStockDB(stockDB);
+        
     }
 //CustomerDataBase quries
     @Override
@@ -48,13 +84,13 @@ public class DataBaseController implements BaseDataBaseController {
     }
    
     @Override
-    public boolean addCustomerData(Customer customer) throws CannotAddDataException{
-        return customerDatabase.addCustomerData(customer);
+    public void addCustomerData(Customer customer) throws CannotAddDataException{
+        customerDatabase.addCustomerData(customer);
     }
     
     @Override
-    public boolean removeCustomer(String customerID) throws DataNotFoundException, CannotRemoveDataException {
-        return customerDatabase.removeCustomer(customerID);
+    public void removeCustomer(String customerID) throws DataNotFoundException, CannotRemoveDataException {
+        customerDatabase.removeCustomer(customerID);
     }
     @Override
     public List<Customer> sortByCustomerName(SortOrder sortOrder, List<Customer> currentCustomers) {
@@ -76,9 +112,9 @@ public class DataBaseController implements BaseDataBaseController {
     }
     
     @Override
-    public boolean addOrderHistoryData(OrderHistory orderHistory){
+    public void addOrderHistoryData(OrderHistory orderHistory) throws CannotAddDataException{
        
-        return orderHistoryDataBase.addOrderHistoryData(orderHistory);
+         orderHistoryDataBase.addOrderHistoryData(orderHistory);
     }
     @Override
     public List<OrderHistory> getOrderHistroyOfCustomer(String customerID){
@@ -101,9 +137,9 @@ public class DataBaseController implements BaseDataBaseController {
 
     
     @Override
-    public boolean removeOrderHistory(String orderHistoryID)
+    public void removeOrderHistory(String orderHistoryID)
             throws CannotRemoveDataException, DataNotFoundException {
-        return orderHistoryDataBase.removeOrderHistory(orderHistoryID);
+         orderHistoryDataBase.removeOrderHistory(orderHistoryID);
     }
     //Stock Database quries
     @Override
@@ -115,21 +151,21 @@ public class DataBaseController implements BaseDataBaseController {
        return stockDataBase.getStockData(stockID);
     }
     @Override
-    public boolean removeStockData(String stockID) throws CannotRemoveDataException, DataNotFoundException{
-        return stockDataBase.removeStockData(stockID);
+    public void  removeStockData(String stockID) throws CannotRemoveDataException, DataNotFoundException{
+       stockDataBase.removeStockData(stockID);
     }
     
     @Override
-    public boolean addStock(Stock newStock) throws CannotAddDataException {
-        return stockDataBase.addStock(newStock);
+    public void addStock(Stock newStock) throws CannotAddDataException {
+       stockDataBase.addStock(newStock);
     }
 
     
     @Override
-    public boolean updateStock(String stockID, UpdateType updateType, String data)
-            throws DataNotFoundException, NumberFormatException {
+    public void updateStock(String stockID, UpdateType updateType, String data)
+            throws DataNotFoundException, NumberFormatException,CannotAddDataException, CannotRemoveDataException {
        
-        return stockDataBase.updateStock(stockID, updateType, data);
+        stockDataBase.updateStock(stockID, updateType, data);
     }
     @Override
     public List<Stock> sortByStockCount(SortUtil.SortOrder sortOrder,List<Stock> currentStocks){
@@ -179,12 +215,6 @@ public class DataBaseController implements BaseDataBaseController {
         return stockDataBase.placeOrder(stockID, count);
     }
 
-    public static DataBaseController getInstance(){
-        if(Instance==null){
-            Instance = new DataBaseController();
-        }
-        return Instance;
-    }
     @Override
     public Customer checkCustomerCustomerIDAndPassword(String customerID, String password)
             throws InvalidLoginCredentialsException, DataNotFoundException {
@@ -194,12 +224,18 @@ public class DataBaseController implements BaseDataBaseController {
                 throw new InvalidLoginCredentialsException("Inalid logins credentials\n");
     }
     @Override
-    public boolean BuyStock(String stockID,int count) throws DataNotFoundException {
+    public boolean BuyStock(String stockID,int count) throws DataNotFoundException,CannotAddDataException, NumberFormatException, CannotRemoveDataException {
         Stock stock = getStockData(stockID);
         count+=stock.getStockCount();
         updateStock(stockID, Stock.UpdateType.StockCount, String.valueOf(count));
         return false;
     }
-   
+    
+    public static DataBaseController getInstance(){
+        if(Instance==null){
+            Instance = new DataBaseController();
+        }
+        return Instance;
+    }
 
 }

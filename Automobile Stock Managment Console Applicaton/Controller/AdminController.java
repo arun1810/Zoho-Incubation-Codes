@@ -104,30 +104,30 @@ public class AdminController implements BaseAdminController {
     }
 
     @Override
-    public void updateStock(String stockID,UpdateType updateType, String data) throws NumberFormatException, DataNotFoundException {
+    public void updateStock(String stockID,UpdateType updateType, String data) throws NumberFormatException, DataNotFoundException, CannotAddDataException, CannotRemoveDataException {
         dataBaseController.updateStock(stockID,updateType,data);
         
     }
 
     @Override
-    public void BuyStock(String stockID, int count) throws DataNotFoundException,InsufficientStockCountException {
+    public void BuyStock(String stockID, int count) throws DataNotFoundException,InsufficientStockCountException, CannotAddDataException, NumberFormatException, CannotRemoveDataException {
         dataBaseController.BuyStock(stockID,count);
         
     }
 
     @Override
-    public boolean removeOrderHistory(String orderHistoryID) throws DataNotFoundException, CannotRemoveDataException {
-      return dataBaseController.removeOrderHistory(orderHistoryID);
+    public void removeOrderHistory(String orderHistoryID) throws DataNotFoundException, CannotRemoveDataException {
+      dataBaseController.removeOrderHistory(orderHistoryID);
     }
 
     @Override
-    public boolean removeCustomer(String customerID) throws DataNotFoundException, CannotRemoveDataException {
-        return dataBaseController.removeCustomer(customerID);
+    public void removeCustomer(String customerID) throws DataNotFoundException, CannotRemoveDataException {
+         dataBaseController.removeCustomer(customerID);
     }
 
     @Override
-    public boolean removeStock(String stockID) throws DataNotFoundException, CannotRemoveDataException {
-        return dataBaseController.removeStockData(stockID);
+    public void removeStock(String stockID) throws DataNotFoundException, CannotRemoveDataException {
+         dataBaseController.removeStockData(stockID);
     }
 
     @Override

@@ -86,11 +86,11 @@ public class Printer {
     private String getOrderHistoryTableString(){
         if(orderHistoryTableStr==null){
             StringBuilder builder = new StringBuilder();
-            builder.append(String.format("| %-20s |","Order_ID"));
+            builder.append(String.format("| %-15s |","Order_ID"));
             builder.append(String.format(" %-20s |","Date_OF_Purchase"));
-            builder.append(String.format(" %-15s |","Customer_ID"));
-            builder.append(String.format(" %-30s |","Stock_IDs"));
-            builder.append(String.format(" %-30s |","Counts"));
+            builder.append(String.format(" %-12s |","Customer_ID"));
+            builder.append(String.format(" %-25s |","Stock_IDs"));
+            builder.append(String.format(" %-20s |","Counts"));
             builder.append(String.format(" %-13s |","Total"));
             
 

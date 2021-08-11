@@ -53,7 +53,6 @@ public class AdminView implements BaseView {
                         printer.printObject(adminController.getCustomer(data));
                     } catch (DataNotFoundException e) {
                         printer.printErrorMsg(e.getMessage());
-                        e.printStackTrace();
                     }
                     break;
                 case 5:
@@ -62,7 +61,6 @@ public class AdminView implements BaseView {
                         printer.printObject(adminController.getStockByID(data));
                     } catch (DataNotFoundException e) {
                         printer.printErrorMsg(e.getMessage());
-                        e.printStackTrace();
                     }
                     break;
                 case 6:
@@ -71,7 +69,6 @@ public class AdminView implements BaseView {
                         printer.printObject(adminController.getOrderHistorybyID(data));
                     } catch (DataNotFoundException e) {
                         printer.printErrorMsg(e.getMessage());
-                        e.printStackTrace();
                     }
                     break;
                 case 7:         
@@ -100,7 +97,7 @@ public class AdminView implements BaseView {
                             adminController.addStock(createStockByUserInput());
                             printer.printSuccessMsg("Stocks Added Successfully");
                         } catch (CannotAddDataException e) {
-                            e.printStackTrace();
+                            printer.printErrorMsg(e.getMessage());
                         }
                 break;
                 case 14:
@@ -110,7 +107,6 @@ public class AdminView implements BaseView {
                         printer.printSuccessMsg("New customer Added Successfully");
                     } catch (CannotAddDataException e) {
                         printer.printErrorMsg(e.getMessage());
-                        e.printStackTrace();
                     }
                 break;
                 case 15:
@@ -120,9 +116,8 @@ public class AdminView implements BaseView {
                     try {
                         adminController.updateStock(data, updateType, data2);
                         printer.printSuccessMsg("Stocks updated Successfully");
-                    } catch (NumberFormatException | DataNotFoundException e) {
+                    } catch (NumberFormatException | DataNotFoundException| CannotAddDataException | CannotRemoveDataException e) {
                         printer.printErrorMsg(e.getMessage());
-                        e.printStackTrace();
                     }
                     break;
                 case 16:
@@ -131,9 +126,8 @@ public class AdminView implements BaseView {
                     try {
                         adminController.BuyStock(data, count);
                         printer.printSuccessMsg("Stocks bought Successfully");
-                    } catch (DataNotFoundException | InsufficientStockCountException e) {
+                    } catch (DataNotFoundException | InsufficientStockCountException| CannotAddDataException | NumberFormatException | CannotRemoveDataException e) {
                         printer.printErrorMsg(e.getMessage());
-                        e.printStackTrace();
                     }
                     break;
                 case 17:
@@ -143,7 +137,6 @@ public class AdminView implements BaseView {
                             printer.printSuccessMsg("Order History removed Successfully");
                         } catch (DataNotFoundException | CannotRemoveDataException e) {
                             printer.printErrorMsg(e.getMessage());
-                            e.printStackTrace();
                         }
                         break;
                 case 18:
@@ -153,7 +146,6 @@ public class AdminView implements BaseView {
                             printer.printSuccessMsg("Customer removed Successfully");
                         } catch (DataNotFoundException | CannotRemoveDataException e) {
                             printer.printErrorMsg(e.getMessage());
-                            e.printStackTrace();
                         }
                         break;
                 case 19:
@@ -163,7 +155,6 @@ public class AdminView implements BaseView {
                             printer.printSuccessMsg("Stock removed Successfully");
                         } catch (DataNotFoundException | CannotRemoveDataException e) {
                             printer.printErrorMsg(e.getMessage());
-                            e.printStackTrace();
                         }
                         break;
                 case 20:

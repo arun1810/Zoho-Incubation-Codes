@@ -1,6 +1,6 @@
 package Model;
 
-import java.util.ArrayList;
+import java.io.File;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -11,26 +11,29 @@ import CustomExceptions.InsufficientStockCountException;
 import Model.BaseInterface.BaseStockDataBase;
 import POJO.Stock;
 import POJO.Stock.UpdateType;
+import Utilities.JsonDB;
 import Utilities.SortUtil.SortOrder;
 
 public class TestStockDB implements BaseStockDataBase {
-    List<Stock> stocks ;
+    private List<Stock> stocks ;
+    private File stockDbFile;
+    private JsonDB jsonDB;
 
-    public TestStockDB(){
-        stocks = new ArrayList<>();
-
-        stocks.add(new Stock("001", "dum1",500 ,500,10));
-        stocks.add(new Stock("002", "dum2",10 ,500,10));
-        stocks.add(new Stock("003", "dum3",100 ,500,10));
+    public TestStockDB(File stockDbFile){
+        this.stockDbFile = stockDbFile;
+        jsonDB = JsonDB.getInstance();
     }
 
     @Override
     public List<Stock> getAllStockData() {
+        stocks = jsonDB.getAllDataFromFile(stockDbFile, Stock.class);
         return stocks;
     }
 
     @Override
     public Stock getStockData(String stockID) throws DataNotFoundException{
+        if(stocks==null) stocks = getAllStockData();
+        
         Stock stock = stocks.stream()
         .filter(order->order.getStockId().equals(stockID))
         .findFirst()
@@ -40,16 +43,13 @@ public class TestStockDB implements BaseStockDataBase {
     }
 
     @Override
-    public boolean removeStockData(String stockID) throws DataNotFoundException, CannotRemoveDataException {
-        if(stocks.remove(getStockData(stockID))) return true;
-        
-        throw new CannotRemoveDataException("Something went wrong! Cannot remove stock");
+    public void removeStockData(String stockID) throws DataNotFoundException,CannotRemoveDataException {
+        stocks = jsonDB.removeDataFromDataBase(getStockData(stockID), stockDbFile, Stock.class);
         
     }
     @Override
-    public boolean addStock(Stock newStock) throws CannotAddDataException{
-        if(stocks.add(newStock)) return true;
-        throw new CannotAddDataException("Something went wrong! Canot add stock");
+    public void addStock(Stock newStock) throws CannotAddDataException{
+        stocks = jsonDB.writeDataToDataBase(newStock,stockDbFile,Stock.class);
     }
 
     @Override
@@ -105,26 +105,33 @@ public class TestStockDB implements BaseStockDataBase {
     }
 
     @Override
-    public boolean updateStock(String stockID,UpdateType updateType, String data) throws DataNotFoundException,NumberFormatException {
+    public void updateStock(String stockID,UpdateType updateType, String data) throws DataNotFoundException,NumberFormatException,CannotAddDataException, CannotRemoveDataException {
         Stock stock = getStockData(stockID);
+        stocks = jsonDB.removeDataFromDataBase(stock,stockDbFile,Stock.class);
        switch(updateType){
            case StockID:
                 stock.setStockId(data);
-                return true;
+                break;
+                
             case StockCount:
                 stock.setStockCount(Integer.valueOf(data));
-                return true;
+                break;
+                
             case StockDiscount:
                  stock.setStockDiscount(Integer.valueOf(data));
-                 return true;
+                 break;
+                 
             case StockName:
                  stock.setStockName((String)data);
-                 return true;
+                 break;
+                 
             case StockPrice:
                  stock.setStockPrice(Integer.valueOf(data));
-                 return true;
+                 break;
+                 
        }
-        return false;
+       stocks.add(stock);
+       jsonDB.updateDataOnDb(stocks,stockDbFile);
     }
 
 }

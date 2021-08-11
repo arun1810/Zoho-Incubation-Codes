@@ -1,35 +1,40 @@
 package Model;
 
 
+import java.io.File;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import Model.BaseInterface.BaseOrderHistoryDataBase;
 import POJO.OrderHistory;
+import Utilities.JsonDB;
 import Utilities.SortUtil.SortOrder;
 import java.util.stream.Collectors;
+
+import CustomExceptions.CannotAddDataException;
 import CustomExceptions.CannotRemoveDataException;
 import CustomExceptions.DataNotFoundException;
 
 public class TestOrderHistoryDB implements BaseOrderHistoryDataBase {
-    List<OrderHistory> orderHistories;
+    private List<OrderHistory> orderHistories;
+    private File orderHistoryDbFile;
+    private JsonDB jsonDB;
 
-    public TestOrderHistoryDB(){
-        orderHistories = new ArrayList<>();
-        orderHistories.add(new OrderHistory("100",LocalDate.now(),"1",new String[]{"001","002","003"}, new int[]{1,20,3}, 1000));
-        orderHistories.add(new OrderHistory("101",LocalDate.now(),"2",new String[]{"001","002","003"}, new int[]{1,20,3}, 1000));
-        orderHistories.add(new OrderHistory("102",LocalDate.now(),"3",new String[]{"001","002","003"}, new int[]{1,20,3}, 1000));
-        orderHistories.add(new OrderHistory("103",LocalDate.now(),"4",new String[]{"001","002","003"}, new int[]{1,20,3}, 1000));
+    public TestOrderHistoryDB(File orderHistoryDbFile){
+        this.orderHistoryDbFile = orderHistoryDbFile;
+        jsonDB = JsonDB.getInstance();
     }
 
     @Override
     public List<OrderHistory> getAllOrderHistoryData() {
-        
+        orderHistories = jsonDB.getAllDataFromFile(orderHistoryDbFile, OrderHistory.class);
         return orderHistories;
     }
 
     @Override
     public OrderHistory getOrderHistoryData(String orderID) throws DataNotFoundException {
+        if(orderHistories==null) orderHistories = getAllOrderHistoryData();
+        
         OrderHistory orderHistory = orderHistories.stream()
                                                   .filter(order->order.getOrderID().equals(orderID))
                                                   .findFirst()
@@ -42,15 +47,13 @@ public class TestOrderHistoryDB implements BaseOrderHistoryDataBase {
     
 
     @Override
-    public boolean addOrderHistoryData(OrderHistory orderHistory)  {
-        
-        if(orderHistories.add(orderHistory)) return true;
-        return false;
+    public void addOrderHistoryData(OrderHistory orderHistory) throws CannotAddDataException  {
+        orderHistories = jsonDB.writeDataToDataBase(orderHistory, orderHistoryDbFile,OrderHistory.class);
     }
 
     @Override
     public List<OrderHistory> getOrderHistroyOfCustomer(String customerID)  {
-        
+        if(orderHistories==null) orderHistories = getAllOrderHistoryData();
         return orderHistories.stream()
                              .filter(order->order.getCustomerID().equals(customerID))
                              .collect(Collectors.toList());
@@ -117,9 +120,8 @@ public class TestOrderHistoryDB implements BaseOrderHistoryDataBase {
     }
 
     @Override
-    public boolean removeOrderHistory(String orderHistoryID) throws CannotRemoveDataException, DataNotFoundException {
-        if(orderHistories.remove(getOrderHistoryData(orderHistoryID))) return true;
-        throw new CannotRemoveDataException("Something went wrong! Cannot remove OrderHistory\n");
+    public void removeOrderHistory(String orderHistoryID) throws CannotRemoveDataException, DataNotFoundException {
+        orderHistories = jsonDB.removeDataFromDataBase(getOrderHistoryData(orderHistoryID), orderHistoryDbFile, OrderHistory.class);
     }
     
 }

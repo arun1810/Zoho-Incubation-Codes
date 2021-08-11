@@ -49,6 +49,11 @@ public class Stock {
         this.stockDiscount = discount;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        return this.stockID.equals(((Stock)obj).getStockId());
+    }
+
    @Override
    public String toString() {
     StringBuilder builder = new StringBuilder();

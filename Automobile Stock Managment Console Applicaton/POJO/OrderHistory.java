@@ -80,13 +80,18 @@ public class OrderHistory {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        return this.getOrderID().equals(((OrderHistory)obj).getOrderID());
+    }
+
+    @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append(String.format("| %-20s |",orderID));
+        builder.append(String.format("| %-15s |",orderID));
         builder.append(String.format(" %-20s |",dateOfPurchase.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG))));
-        builder.append(String.format(" %-15s |",customerID));
-        builder.append(String.format(" %-30s |",Arrays.toString(stockIDs)));
-        builder.append(String.format(" %-30s |",Arrays.toString(counts)));
+        builder.append(String.format(" %-12s |",customerID));
+        builder.append(String.format(" %-25s |",Arrays.toString(stockIDs)));
+        builder.append(String.format(" %-20s |",Arrays.toString(counts)));
         builder.append(String.format(" %-13d |",total));
         return builder.toString();
     }
